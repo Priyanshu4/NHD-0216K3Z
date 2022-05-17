@@ -46,9 +46,9 @@ class NHD_0216K3Z:
         }
         
     def __init__(self, i2c_bus, i2c_addr):
-        ''' Initializes the NHD_0216K3Z object
-            i2c_bus must be an SMBus object or an int representing the device I2C bus ID 
-            i2c_addr is the address of the NHD_0216K3Z       
+        ''' Initializes the NHD_0216K3Z object.
+            i2c_bus must be an SMBus object or an int representing the device I2C bus ID.
+            i2c_addr is the address of the NHD_0216K3Z.       
         '''
         if isinstance(i2c_bus, SMBus):
             self.i2c_bus = i2c_bus
@@ -114,7 +114,8 @@ class NHD_0216K3Z:
     def disp_msg(self, msg, preserve_words = False):
         ''' Clears the screen, resets cursor position, and writes a message.
             Automatically overflows to second line.
-            If preserve_words is true, words are not split between lines.
+            By default, preserve_words is False, which means a word can be split between the two lines.
+            If preserve_words is True, a word will be moved to the second line instead of split partially between lines 1 and 2.
             Returns whether or not the message fits on the screen.
             To use any of the 8 loaded custom characters in your msg, use '\0' through '\7'.
         '''
@@ -127,11 +128,13 @@ class NHD_0216K3Z:
             for word in words:
                 if i != 16 and i != 0:
                     self.write(' ')
+                    i = i + 1
                 if i + len(word) > 16:
                     self.set_cursor_pos(2, 1)
+                    i = 16
                 self.write(word)
-                i = i + len(word) + 1
-            msg_fits = i <= 33
+                i = i + len(word)
+            msg_fits = i <= 32
         else:
             for i in range(len(msg)):
                 if i == 16:
